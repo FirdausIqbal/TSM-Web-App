@@ -70,20 +70,6 @@ export async function getAvailableCars(startDate: Date, endDate: Date) {
   }
 }
 
-/**
- * @param id rental
- * @returns object message dan boolean status success
- */
-export async function deleteRental(id: string) {
-  try {
-    await db.delete(rentals).where(eq(rentals.id, id));
-    revalidatePath("/dashboard/rentals");
-  } catch (error) {
-    console.log(error);
-    throw new Error("terjadi kesalahan saat menghapus rental");
-  }
-}
-
 export async function changeRentalStatus(id: string, currentStatus: string) {
   try {
     await db
@@ -96,7 +82,6 @@ export async function changeRentalStatus(id: string, currentStatus: string) {
     throw new Error("terjadi kesalahan saat mengubah status");
   }
 }
-
 
 export async function getAllCustomers() {
   try {
@@ -119,11 +104,35 @@ export async function getCustomerWithId(id: string) {
     const res = await db.select().from(customers).where(eq(customers.id, id));
     return {
       success: true,
-      data: res[0]
-    }
+      data: res[0],
+    };
   } catch (error) {
-    console.log(error)
-    throw new Error('Failed to fetch customer data')
+    console.log(error);
+    throw new Error("Failed to fetch customer data");
   }
-  
+}
+
+export async function getRentalFormData(id: string) {
+  try {
+    const res = await db
+      .select({
+        id: rentals.id,
+        carId: cars.id,
+        carName: cars.name,
+        carPrice: cars.pricePerDay,
+        totalPrice: rentals.totalPrice,
+        startDate: rentals.startDate,
+        endDate: rentals.endDate,
+      })
+      .from(rentals)
+      .innerJoin(cars, eq(rentals.carId, cars.id))
+      .where(eq(rentals.id, id));
+
+    return {
+      data: res[0],
+    };
+  } catch (error) {
+    console.log("Failed to fetch rental data : ", error);
+    throw new Error("Failed to fetch rental data");
+  }
 }
