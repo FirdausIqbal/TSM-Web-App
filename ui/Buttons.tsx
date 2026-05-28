@@ -1,13 +1,11 @@
 "use client";
 
 import { logout } from "@/actions/authentication";
-import type { DeleteButtonProps } from "@/app/types/definitions";
-import { changeRentalStatus } from "@/lib/data";
 import { Loader2, Loader2Icon, LogOut, Notebook, Trash } from "lucide-react";
 import { useState, useTransition, type ChangeEvent } from "react";
 import { ConfirmModal } from "./modals/ConfirmModal";
 import { formatStyleStatus } from "@/lib/utils";
-import { deleteRental } from "@/actions/actions";
+import { changeRentalStatus } from "@/lib/data";
 
 /**
  * Button SignOut
@@ -30,11 +28,43 @@ export function SignOutButton() {
 }
 
 /**
- *
- * @param property {title, message, id}
- * @void delete rental
+ * Generic Delete Button Component
+ * 
+ * Best Practice:
+ * - Accept server action function as prop (onDelete)
+ * - Component only handles UI state & confirmation flow
+ * - Function logic is passed from parent component
+ * - Type-safe with generic types
+ * - Accepts any return type from server action
+ * 
+ * Usage examples:
+ * 1. Delete Rental:
+ *    <DeleteItemButton 
+ *      title="Delete Rental" 
+ *      message="Are you sure?" 
+ *      id={rentalId}
+ *      onDelete={deleteRental}
+ *    />
+ * 
+ * 2. Delete Customer:
+ *    <DeleteItemButton 
+ *      title="Delete Customer" 
+ *      message="Are you sure?" 
+ *      id={customerId}
+ *      onDelete={deleteCustomer}
+ *    />
  */
-export function DeleteItemButton({ title, message, id }: DeleteButtonProps) {
+export function DeleteItemButton<T = string>({ 
+  title, 
+  message, 
+  id, 
+  onDelete 
+}: {
+  title: string;
+  message: string;
+  id: T;
+  onDelete: (id: T) => Promise<unknown>;
+}) {
   const [isModelOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -42,7 +72,7 @@ export function DeleteItemButton({ title, message, id }: DeleteButtonProps) {
     setIsModalOpen(false);
 
     startTransition(async () => {
-      await deleteRental(id);
+      await onDelete(id);
     });
   };
 
@@ -51,7 +81,7 @@ export function DeleteItemButton({ title, message, id }: DeleteButtonProps) {
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={isPending}
-        className="p-2 bg-destructive hover:bg-destructive/50 transition-colors duration-300 rounded-2xl text-background cursor-pointer"
+        className="p-2 z-50 bg-destructive hover:bg-destructive/50 transition-colors duration-300 rounded-2xl text-background cursor-pointer"
       >
         {isPending ? (
           <Loader2 size={20} className="animate-spin" />
