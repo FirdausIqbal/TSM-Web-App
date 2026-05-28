@@ -1,3 +1,4 @@
+import { deleteRental } from "@/actions/actions";
 import { getAllRentals } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
 import { DeleteItemButton, StatusRentalButton } from "@/ui/Buttons";
@@ -22,19 +23,19 @@ export default async function AllRentals() {
         <table className="text-sm w-full">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Customer
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Car
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Duration
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Price
               </th>
-              <th className="text-left py-3 px-3 font-semibold text-muted-foreground">
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Status
               </th>
             </tr>
@@ -71,9 +72,10 @@ export default async function AllRentals() {
                   </td>
                   <td className="p-3">
                     <DeleteItemButton
-                      title="Delete Rental"
+                      title="Hapus Rental"
                       message="Apakah anda yakin menghapus rental ini ?"
                       id={rental.id}
+                      onDelete={deleteRental}
                     />
                   </td>
                   <td className="p-3">

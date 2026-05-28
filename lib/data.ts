@@ -132,7 +132,36 @@ export async function getRentalFormData(id: string) {
       data: res[0],
     };
   } catch (error) {
-    console.log("Failed to fetch rental data : ", error);
+    console.log("Error to fetch rental data : ", error);
     throw new Error("Failed to fetch rental data");
+  }
+}
+
+/**
+ * Customer Data 
+ */
+
+export async function getFilteredCustomer() {
+  // sementara get all customer dulu (jika sudah ada pagination ubah params)
+  try {
+    const res = await db.select().from(customers);
+    return {
+      data: res
+    }
+  } catch (error) {
+    console.log("Error to fetch customer data : ", error);
+    throw new Error("Failed to fetch customer data");
+  }
+}
+
+export async function getCustomerData(id: string) {
+  try {
+    const res = await db.select().from(customers).where(eq(customers.id, id));
+    return {
+      data: res[0]
+    }
+  } catch (error) {
+    console.log("Error to fetch customer data : ", error);
+    throw new Error("Failed to fetch customer data");
   }
 }
