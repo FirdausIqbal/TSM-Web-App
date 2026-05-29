@@ -1,7 +1,7 @@
 "use server";
 import type { StatusValueType } from "@/app/types/definitions";
 import { db } from "@/db";
-import { customers, rentals, cars } from "@/db/schema";
+import { customers, rentals, cars, cashflow } from "@/db/schema";
 import { and, desc, eq, gte, lte, notExists } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -163,5 +163,36 @@ export async function getCustomerData(id: string) {
   } catch (error) {
     console.log("Error to fetch customer data : ", error);
     throw new Error("Failed to fetch customer data");
+  }
+}
+
+
+/**
+ * Revenue Data
+ */
+
+export async function getIncome() {
+  try {
+    const res = await db.select().from(cashflow).where(eq(cashflow.type, "INCOME"));
+
+    return {
+      data: [...res]
+    }
+  } catch (error) {
+    console.log("Error to fetch income data : ", error);
+    throw new Error("Failed to fetch Income data");
+  }
+}
+
+export async function getExpense() {
+  try {
+    const res = await db.select().from(cashflow).where(eq(cashflow.type, "EXPENSE"));
+
+    return {
+      data: [...res]
+    }
+  } catch (error) {
+    console.log("Error to fetch expense data : ", error);
+    throw new Error("Failed to fetch expense data");
   }
 }

@@ -4,7 +4,7 @@ import type { State } from "@/app/types/definitions";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { cashflow, customers, rentals } from "@/db/schema";
-import { eq, ne, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -70,8 +70,6 @@ export async function addRental(formdata: FormData) {
       notes: "Tripelde Booked Unit",
     });
 
-    revalidatePath("/dashboard/rentals");
-
     return {
       success: true,
       message: "Berhasil Mencatat data rental dan cashflow",
@@ -83,6 +81,8 @@ export async function addRental(formdata: FormData) {
       message: "Something went wrong while adding rental",
     };
   }
+
+  revalidatePath("/dashboard/rentals");
 }
 
 export async function deleteRental(id: string) {
@@ -101,7 +101,11 @@ export async function deleteRental(id: string) {
   revalidatePath("/dashboard/rentals");
 }
 
-export async function editRental(rentalId: string, prevState: State, formData: FormData) {
+export async function editRental(
+  rentalId: string,
+  prevState: State,
+  formData: FormData,
+) {
   const session = await auth();
   if (!session?.user) {
     throw new Error("Unauthorized");
@@ -193,64 +197,118 @@ export async function editRental(rentalId: string, prevState: State, formData: F
  * Customer Actions
  */
 
-export async function createCustomer(prevState: unknown, formData: FormData){
+export async function createCustomer(prevState: unknown, formData: FormData) {
   const { name, nik, phone, address } = Object.fromEntries(formData);
 
   try {
-    const existingNIK = await db.select().from(customers).where(eq(customers.nik, nik as string));
+    const existingNIK = await db
+      .select()
+      .from(customers)
+      .where(eq(customers.nik, nik as string));
 
-    if(existingNIK.length > 0) {
+    if (existingNIK.length > 0) {
       return {
-        message: "NIK sudah terdaftar"
-      }
+        message: "NIK sudah terdaftar",
+      };
     }
 
     await db.insert(customers).values({
       name: name as string,
       nik: nik as string,
       phone: phone as string,
-      address: address as string | null
-    })
-
+      address: address as string | null,
+    });
   } catch (error) {
     console.log("Error create customer : ", error);
     return {
-      message: "Failed create customer"
-    }
+      message: "Failed create customer",
+    };
   }
 
   revalidatePath("/dashboard/customers");
-  redirect("/dashboard/customers")
+  redirect("/dashboard/customers");
 }
 
 export async function deleteCustomer(id: string) {
   try {
     await db.delete(customers).where(eq(customers.id, id));
   } catch (error) {
-    console.log('Error delete customer : ', error)
-    return { message: "Error Deleting customer"}
+    console.log("Error delete customer : ", error);
+    return { message: "Error Deleting customer" };
   }
 
-  revalidatePath("/dashboard/customers")
+  revalidatePath("/dashboard/customers");
 }
 
-export async function editCustomer(id: string, prevState: unknown, formData: FormData) {
+export async function editCustomer(
+  id: string,
+  prevState: unknown,
+  formData: FormData,
+) {
   const { name, nik, phone, address } = Object.fromEntries(formData);
 
   try {
-    await db.update(customers)
+    await db
+      .update(customers)
       .set({
         name: name as string,
         nik: nik as string,
         phone: phone as string,
-        address: address as string | null
+        address: address as string | null,
       })
       .where(eq(customers.id, id));
   } catch (error) {
     console.log("Error edit customer : ", error);
-    return { message: "Error edit customer"};
+    return { message: "Error edit customer" };
   }
 
   revalidatePath("/dashboard/customers");
   redirect("/dashboard/customers");
+}
+
+/**
+ * Revenue Actions
+ */
+
+export async function createCashflow(prevState: unknown, formData: FormData) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { type, amount, category, date, notes } = Object.fromEntries(formData);
+
+  try {
+    if (!type || !amount || !category || !date) {
+      return {
+        success: false,
+        message: "Semua field harus diisi",
+      };
+    }
+
+    await db.insert(cashflow).values({
+      type: type as "INCOME" | "EXPENSE",
+      category: category as string,
+      amount: Number(amount),
+      notes: (notes as string) || null,
+      date: new Date(date as string),
+    });
+  } catch (error) {
+    console.log("Error create cashflow : ", error);
+    return {
+      message: "Gagal mencatat data keuangan",
+    };
+  }
+  revalidatePath("/dashboard/revenue");
+  redirect("/dashboard/revenue")
+}
+
+export async function deleteCashflow(id: string) {
+  try {
+    await db.delete(cashflow).where(eq(cashflow.id, id));
+  } catch (error) {
+    console.log('Error delete cashflow : ', error);
+    return { message: "Failed deleting cashflow"};
+  }
+  revalidatePath("/dashboard/revenue")
 }

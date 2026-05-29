@@ -1,6 +1,6 @@
 import { deleteRental } from "@/actions/actions";
 import { getAllRentals } from "@/lib/data";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeleteItemButton, StatusRentalButton } from "@/ui/Buttons";
 import { Edit, PlusIcon } from "lucide-react";
 import Link from "next/link";
@@ -60,8 +60,8 @@ export default async function AllRentals() {
                   <td className="py-3 px-3 text-foreground">{rental.carType}</td>
                   <td className="py-3 px-3 text-muted-foreground">
                     <div className="text-xs">
-                      <p>{rental.startDate.toLocaleDateString()}</p>
-                      <p>to {rental.endDate.toLocaleDateString()}</p>
+                      <p>{formatDate(rental.startDate)}</p>
+                      <p>to {formatDate(rental.endDate)}</p>
                     </div>
                   </td>
                   <td className="py-3 px-3 font-semibold text-foreground">
