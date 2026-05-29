@@ -10,6 +10,19 @@ export function formatCurrency(amount: number) {
     minimumFractionDigits: 0,
   }).format(amount);
 }
+/**
+ * Format Date
+ * fn() untuk format waktu tanggal - bulan - tahun (readable)
+ * return string(date)
+ */
+export function formatDate (date: Date | string): string {
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return dateObj.toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
 /**
  * 

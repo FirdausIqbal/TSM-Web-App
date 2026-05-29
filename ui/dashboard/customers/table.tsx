@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteCustomer } from "@/actions/actions";
+import { formatDate } from "@/lib/utils";
 import { DeleteItemButton } from "@/ui/Buttons";
 import { Edit2 } from "lucide-react";
 import Link from "next/link";
@@ -62,7 +63,7 @@ export default function CustomersTable({ customers }: CustomersTableProps) {
               <td className="py-3 px-4 text-sm">{customer.phone}</td>
               <td className="py-3 px-4 text-sm">{customer.address || "-"}</td>
               <td className="py-3 px-4 text-sm">
-                {new Date(customer.createdAt).toLocaleDateString("id-ID")}
+                {formatDate(customer.createdAt)}
               </td>
               <td className="py-3 px-4">
                 <DeleteItemButton
