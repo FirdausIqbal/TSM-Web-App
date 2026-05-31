@@ -1,4 +1,5 @@
 import LoginForm from "@/ui/login/LoginForm";
+import { Suspense } from "react";
 
 export default function page() {
   return (
@@ -9,7 +10,9 @@ export default function page() {
         <p className="text-gray-500">Rental Mobil Terpercaya Tebet</p>
       </div>
 
-      <LoginForm />
+      <Suspense>
+        <LoginForm />
+      </Suspense>
 
     </div>
   )
