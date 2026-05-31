@@ -1,7 +1,8 @@
 import LastRentals from "@/ui/dashboard/LastRentals";
 import MonthlyStats from "@/ui/dashboard/MonthlyStats";
+import RentalCalendar from "@/ui/RentCalendar";
 
-export default function page() {
+export default async function page() {
   return (
     <div className="space-y-8">
       <div>
@@ -13,6 +14,9 @@ export default function page() {
 
       {/* Monthly Stats */}
       <MonthlyStats />
+
+      {/* Rental Calendar */}
+      <RentalCalendar />
 
       {/* Recent Rentals */}
       <LastRentals />
