@@ -70,6 +70,7 @@ export async function addRental(formdata: FormData) {
       notes: "Tripelde Booked Unit",
     });
 
+    revalidatePath("/dashboard/rentals");
     return {
       success: true,
       message: "Berhasil Mencatat data rental dan cashflow",
@@ -81,8 +82,6 @@ export async function addRental(formdata: FormData) {
       message: "Something went wrong while adding rental",
     };
   }
-
-  revalidatePath("/dashboard/rentals");
 }
 
 export async function deleteRental(id: string) {
