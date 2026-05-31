@@ -42,3 +42,5 @@ next-env.d.ts
 
 # seed
 /app/seed/
+# data seed
+/db/data.ts

@@ -2,9 +2,7 @@ export default function page() {
   
   return (
     <div>
-      Sudah setup database,
-
-      yang belum setup auth.js / NextAuth
+      <h1>Halaman Public Space</h1>
     </div>
   )
 }

@@ -1,8 +1,8 @@
 "use server";
-import type { StatusValueType } from "@/app/types/definitions";
+import type { DailyCalendarData, StatusValueType } from "@/app/types/definitions";
 import { db } from "@/db";
 import { customers, rentals, cars, cashflow } from "@/db/schema";
-import { and, desc, eq, gte, lte, notExists } from "drizzle-orm";
+import { and, or, desc, eq, gte, lte, notExists, count } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 /**
@@ -32,6 +32,102 @@ export async function getAllRentals() {
   } catch (error) {
     console.log(error);
     return { success: false, error: "failed to fetch rentals" };
+  }
+}
+
+export async function getRentalsByMonth(year: number, month: number) {
+  try {
+    // Tentukan tanggal awal dan akhir bulan
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
+    // Query rentals dengan car details untuk bulan yang diminta
+    const monthRentals = await db
+      .select({
+        id: rentals.id,
+        carId: rentals.carId,
+        carName: cars.name,
+        plateNumber: cars.plateNumber,
+        startDate: rentals.startDate,
+        endDate: rentals.endDate,
+        status: rentals.status,
+        customerName: customers.name,
+        totalPrice: rentals.totalPrice,
+      })
+      .from(rentals)
+      .innerJoin(cars, eq(rentals.carId, cars.id))
+      .innerJoin(customers, eq(rentals.customerId, customers.id))
+      .where(
+        and(
+          // Rental yang overlapping dengan bulan ini
+          gte(rentals.endDate, startDate),
+          lte(rentals.startDate, endDate),
+          // Hanya tampilkan rental yang aktif atau booking
+          or(
+            eq(rentals.status, 'BOOKED'),
+            eq(rentals.status, 'ON_GOING')
+          )
+        )
+      )
+      .orderBy(rentals.startDate);
+
+    // Transform data untuk format calendar
+    // Kita perlu expand rentals yang span multiple days
+    const calendarDataMap: Record<string, DailyCalendarData> = {};
+
+    for (const rental of monthRentals) {
+      const startDateObj = rental.startDate instanceof Date 
+        ? rental.startDate 
+        : new Date(rental.startDate);
+      const endDateObj = rental.endDate instanceof Date 
+        ? rental.endDate 
+        : new Date(rental.endDate);
+
+      // Loop melalui setiap hari antara startDate dan endDate
+      const currentDay = new Date(startDateObj);
+      
+      while (currentDay <= endDateObj) {
+        const dateStr = currentDay.toISOString().split('T')[0];
+        
+        // Hanya include jika dalam bulan yang ditampilkan
+        if (currentDay >= startDate && currentDay <= endDate) {
+          if (!calendarDataMap[dateStr]) {
+            calendarDataMap[dateStr] = {
+              date: dateStr,
+              cars: [],
+              rentals: [],
+            };
+          }
+          
+          calendarDataMap[dateStr].cars.push(rental.carName);
+          calendarDataMap[dateStr].rentals.push({
+            rentalId: rental.id,
+            carId: rental.carId,
+            carName: rental.carName,
+            status: rental.status,
+            endDate: endDateObj.toISOString().split('T')[0],
+            customerName: rental.customerName,
+          });
+        }
+        
+        // Move to next day
+        currentDay.setDate(currentDay.getDate() + 1);
+      }
+    }
+
+    // Remove duplicates dalam cars array untuk setiap date
+    const calendarData = Object.values(calendarDataMap).map((item) => ({
+      ...item,
+      cars: [...new Set(item.cars)], // Remove duplicates
+    }));
+
+    return {
+      success: true,
+      data: calendarData,
+    };
+  } catch (error) {
+    console.error('Failed to fetch rentals by month:', error);
+    return { success: false, error: 'Failed to fetch rentals by month' };
   }
 }
 
@@ -194,5 +290,70 @@ export async function getExpense() {
   } catch (error) {
     console.log("Error to fetch expense data : ", error);
     throw new Error("Failed to fetch expense data");
+  }
+}
+
+/**
+ * Cars Data
+ */
+
+/**
+ * Fetch cars dengan pagination
+ * params (page, pageSize)
+ * Returns paginated cars data dengan metadata
+ */
+export async function getCarsWithPagination(page: number = 1, pageSize: number = 10) {
+  try {
+    // Validasi pagination params
+    const validPage = Math.max(1, page);
+    const validPageSize = Math.max(1, Math.min(pageSize, 100)); // Max 100 items per page
+
+    // Hitung offset
+    const offset = (validPage - 1) * validPageSize;
+
+    // Get total count of cars
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(cars);
+
+    // Fetch paginated cars
+    const carsList = await db
+      .select()
+      .from(cars)
+      .orderBy(desc(cars.createdAt))
+      .limit(validPageSize)
+      .offset(offset);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(total / validPageSize);
+
+    return {
+      success: true,
+      data: carsList,
+      pagination: {
+        currentPage: validPage,
+        pageSize: validPageSize,
+        totalItems: total,
+        totalPages: totalPages,
+        hasNextPage: validPage < totalPages,
+        hasPrevPage: validPage > 1,
+      },
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      success: false,
+      error: "failed to fetch cars",
+    };
+  }
+}
+
+export async function getCarData(id: string) {
+  try {
+    const res = await db.select().from(cars).where(eq(cars.id, id));
+    return { data : res[0]}
+  } catch (error) {
+    console.log('Error fetching car data : ', error);
+    throw new Error("Failed fetch car data");
   }
 }

@@ -2,17 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, Home, BarChart3, Users, Car, Settings } from "lucide-react";
+import { Menu, X, Home, BarChart3, Users, Car, ClipboardClock } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@/ui/Buttons";
-// import { UserButton } from "./UserButton";
 
 const navItems = [
   { label: "Dashboard", icon: Home, href: "/dashboard" },
   { label: "Revenue", icon: BarChart3, href: "/dashboard/revenue" },
   { label: "Customers", icon: Users, href: "/dashboard/customers" },
-  { label: "Rentals", icon: Car, href: "/dashboard/rentals" },
-  { label: "Settings", icon: Settings, href: "/dashboard/settings" },
+  { label: "Rentals", icon: ClipboardClock, href: "/dashboard/rentals" },
+  { label: "Cars", icon: Car, href: "/dashboard/cars" }
 ];
 
 export default function DashboardSidebar() {
