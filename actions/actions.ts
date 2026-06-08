@@ -1,6 +1,6 @@
 "use server";
 
-import type { State } from "@/app/types/definitions";
+import type { State } from "@/types/definitions";
 import { auth } from "@/auth";
 import { db } from "@/db";
 import { cars, cashflow, customers, rentals } from "@/db/schema";

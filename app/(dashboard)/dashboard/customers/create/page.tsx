@@ -4,7 +4,7 @@ export default function CreateCustomer() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="font-bold text-2xl mb-2">Create Customer</h1>
+        <h1 className="font-bold text-2xl mb-2">Customer</h1>
         <p className="text-muted-foreground text-sm">Catat customer baru</p>
       </div>
 

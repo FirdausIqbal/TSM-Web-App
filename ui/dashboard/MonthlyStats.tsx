@@ -1,30 +1,33 @@
 import { Car, Dock, DollarSign, User2 } from "lucide-react";
 import StatCard from "./StatCard";
+import { fetchMonthlyData } from "@/lib/data";
+import { formatCurrency } from "@/lib/utils";
 
-export default function MonthlyStats() {
+export default async function MonthlyStats() {
+  const { monthlyIncome, totalUnit, totalRental, totalCustomer } = await fetchMonthlyData();
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         title="Pendapatan"
-        value="Rp. 500.000"
+        value={formatCurrency(monthlyIncome)}
         description="Pendapatan bulan ini"
         icon={<DollarSign size={28} />}
       />
       <StatCard
         title="Unit"
-        value="3"
+        value={`${totalUnit}`}
         description="Jumlah unit"
         icon={<Car size={28} />}
       />
       <StatCard
         title="Rentals"
-        value="12"
+        value={`${totalRental}`}
         description="Jumlah sewa bulan ini"
         icon={<Dock size={28} />}
       />
       <StatCard
         title="Customer"
-        value="1"
+        value={`${totalCustomer}`}
         description="Jumlah customer aktif"
         icon={<User2 size={28} />}
       />

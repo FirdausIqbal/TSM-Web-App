@@ -65,21 +65,21 @@ export function PaginationControls({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-4 shadow-md">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+    <div className="bg-card rounded-2xl border border-border p-3 md:p-4 shadow-md">
+      <div className="flex flex-row justify-between gap-3 md:gap-4">
         {/* Info Text */}
-        <div className="text-sm text-muted-foreground">
+        <div className="text-xs md:text-sm text-muted-foreground text-center md:text-left">
           Menampilkan <span className="font-semibold text-foreground">{startItem}</span> sampai{" "}
           <span className="font-semibold text-foreground">{endItem}</span> dari{" "}
           <span className="font-semibold text-foreground">{totalItems}</span> total
         </div>
 
         {/* Controls */}
-        <div className="flex items-center gap-4 flex-wrap justify-center md:justify-end">
-          {/* Page Size Selector */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
+          {/* Page Size Selector - Hidden on mobile */}
           {showInputs && (
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground">Items per page:</label>
+            <div className="hidden md:flex items-center gap-2 text-sm">
+              <label className="text-muted-foreground whitespace-nowrap">Items per page:</label>
               <input
                 type="number"
                 min="1"
@@ -98,88 +98,98 @@ export function PaginationControls({
           )}
 
           {/* Navigation Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center md:justify-end gap-2 w-full md:w-auto">
             {/* Previous Button */}
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="p-2 rounded-lg border border-border hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 md:p-2 rounded-lg border border-border hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:bg-primary/30"
               title="Halaman Sebelumnya"
             >
-              <ChevronLeft size={18} />
+              <ChevronLeft size={20} className="md:w-5 md:h-5" />
             </button>
 
-            {/* Page Numbers */}
+            {/* Page Info - Mobile: show "X of Y", Desktop: show page numbers */}
             <div className="flex items-center gap-1">
-              {/* First Page */}
-              {currentPage > 2 && (
-                <>
-                  <button
-                    onClick={() => handlePageChange(1)}
-                    className="w-8 h-8 rounded-lg border border-border hover:bg-primary/20 transition-colors text-sm font-medium"
-                  >
-                    1
-                  </button>
-                  {currentPage > 3 && (
-                    <span className="text-muted-foreground text-sm px-1">...</span>
-                  )}
-                </>
-              )}
+              {/* Mobile: Simple page info */}
+              <div className="md:hidden flex items-center gap-1 text-sm font-medium">
+                <span className="text-foreground">{currentPage}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-muted-foreground">{totalPages}</span>
+              </div>
 
-              {/* Page Numbers Around Current */}
-              {Array.from({ length: totalPages }).map((_, idx) => {
-                const pageNum = idx + 1;
-                const isNearCurrent =
-                  pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
+              {/* Desktop: Page Numbers */}
+              <div className="hidden md:flex items-center gap-1">
+                {/* First Page */}
+                {currentPage > 2 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(1)}
+                      className="w-8 h-8 rounded-lg border border-border hover:bg-primary/20 transition-colors text-sm font-medium"
+                    >
+                      1
+                    </button>
+                    {currentPage > 3 && (
+                      <span className="text-muted-foreground text-sm px-1">...</span>
+                    )}
+                  </>
+                )}
 
-                if (!isNearCurrent && totalPages > 5) return null;
+                {/* Page Numbers Around Current */}
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pageNum = idx + 1;
+                  const isNearCurrent =
+                    pageNum >= currentPage - 1 && pageNum <= currentPage + 1;
 
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`w-8 h-8 rounded-lg transition-colors text-sm font-medium ${
-                      pageNum === currentPage
-                        ? "bg-primary text-primary-foreground border border-primary"
-                        : "border border-border hover:bg-primary/20"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
+                  if (!isNearCurrent && totalPages > 5) return null;
 
-              {/* Last Page */}
-              {currentPage < totalPages - 1 && (
-                <>
-                  {currentPage < totalPages - 2 && (
-                    <span className="text-muted-foreground text-sm px-1">...</span>
-                  )}
-                  <button
-                    onClick={() => handlePageChange(totalPages)}
-                    className="w-8 h-8 rounded-lg border border-border hover:bg-primary/20 transition-colors text-sm font-medium"
-                  >
-                    {totalPages}
-                  </button>
-                </>
-              )}
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`w-8 h-8 rounded-lg transition-colors text-sm font-medium ${
+                        pageNum === currentPage
+                          ? "bg-primary text-primary-foreground border border-primary"
+                          : "border border-border hover:bg-primary/20"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                {/* Last Page */}
+                {currentPage < totalPages - 1 && (
+                  <>
+                    {currentPage < totalPages - 2 && (
+                      <span className="text-muted-foreground text-sm px-1">...</span>
+                    )}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className="w-8 h-8 rounded-lg border border-border hover:bg-primary/20 transition-colors text-sm font-medium"
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Next Button */}
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className="p-2 rounded-lg border border-border hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 md:p-2 rounded-lg border border-border hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:bg-primary/30"
               title="Halaman Berikutnya"
             >
-              <ChevronRight size={18} />
+              <ChevronRight size={20} className="md:w-5 md:h-5" />
             </button>
           </div>
 
-          {/* Direct Page Input */}
+          {/* Direct Page Input - Hidden on mobile */}
           {showInputs && (
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground">Go to page:</label>
+            <div className="hidden md:flex items-center gap-2 text-sm">
+              <label className="text-muted-foreground whitespace-nowrap">Go to page:</label>
               <input
                 type="number"
                 min="1"
@@ -194,7 +204,7 @@ export function PaginationControls({
                 }}
                 className="w-16 px-2 py-1 rounded border border-border bg-background text-foreground text-sm"
               />
-              <span className="text-sm text-muted-foreground">/ {totalPages}</span>
+              <span className="text-muted-foreground">/ {totalPages}</span>
             </div>
           )}
         </div>

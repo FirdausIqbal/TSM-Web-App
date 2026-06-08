@@ -1,8 +1,10 @@
 import LastRentals from "@/ui/dashboard/LastRentals";
 import MonthlyStats from "@/ui/dashboard/MonthlyStats";
 import RentalCalendar from "@/ui/RentCalendar";
+import { MonthlyStatsSkeleton, RentalsTableSkeleton } from "@/ui/Skeletons";
+import { Suspense } from "react";
 
-export default async function page() {
+export default function page() {
   return (
     <div className="space-y-8">
       <div>
@@ -13,13 +15,17 @@ export default async function page() {
       </div>
 
       {/* Monthly Stats */}
-      <MonthlyStats />
+      <Suspense fallback={<MonthlyStatsSkeleton />}>
+        <MonthlyStats />
+      </Suspense>
 
       {/* Rental Calendar */}
       <RentalCalendar />
 
       {/* Recent Rentals */}
-      <LastRentals />
+      <Suspense fallback={<RentalsTableSkeleton />}>
+        <LastRentals />
+      </Suspense>
     </div>
   );
 }
