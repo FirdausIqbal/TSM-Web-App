@@ -86,7 +86,7 @@ export default function DashboardSidebar() {
           <SignOutButton />
           
           <p className="text-xs text-muted-foreground text-center">
-            © 2024 TripelDe Mobilindo
+            © {new Date().getFullYear()} TripelDe Mobilindo
           </p>
         </div>
       </aside>

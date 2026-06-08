@@ -3,7 +3,7 @@
 import { useState, useMemo, useTransition, useEffect } from "react";
 import { getRentalsByMonth } from "@/lib/data";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import type { DailyCalendarData, CalendarRentalItem } from "@/app/types/definitions";
+import type { DailyCalendarData, CalendarRentalItem } from "@/types/definitions";
 
 export default function RentalCalendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -75,6 +75,8 @@ export default function RentalCalendar() {
   return (
     <div className="p-4 border border-border rounded-lg bg-card">
       {/* HEADER */}
+      <h2 className="font-bold text-2xl mb-4">Kalender Jadwal Sewa</h2>
+      
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           {/* Previous Month Button */}
@@ -146,12 +148,12 @@ export default function RentalCalendar() {
       </div>
 
       {/* Current Month Display */}
-      <h2 className="text-lg font-semibold mb-4">
+      <h3 className="text-lg font-semibold mb-4">
         {currentDate.toLocaleString("id-ID", {
           month: "long",
           year: "numeric",
         })}
-      </h2>
+      </h3>
 
       {/* HARI */}
       <div className="grid grid-cols-7 gap-2 text-center text-sm font-bold mb-4">

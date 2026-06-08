@@ -1,6 +1,16 @@
+import { getRentalCount } from "@/lib/data";
+import { PaginationControls } from "@/ui/dashboard/PaginationControls";
 import AllRentals from "@/ui/dashboard/rentals/AllRentals";
+import { RentalsTableSkeleton } from "@/ui/Skeletons";
+import { Suspense } from "react";
 
-export default function page() {
+export default async function page(props: { searchParams: Promise<{page: number, pageSize: number}>}) {
+  const params = await props.searchParams;
+  const totalItems = await getRentalCount(); // Kalau tambah fitur search ubah jadi berdasarkan query search
+  const page = Number(params?.page) || 1;
+  const pageSize = Number(params?.pageSize) || 10;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  
   return (
     <div className="space-y-8">
       <div>
@@ -8,7 +18,11 @@ export default function page() {
         <p className="text-sm text-muted-foreground">kelola sewa unit</p>
       </div>
 
-      <AllRentals />
+      <PaginationControls currentPage={page} totalPages={totalPages} totalItems={totalItems} pageSize={pageSize} showInputs={true} />
+
+      <Suspense fallback={<RentalsTableSkeleton />}>
+        <AllRentals page={page} pageSize={pageSize} />
+      </Suspense>
     </div>
   );
 }

@@ -1,25 +1,13 @@
-"use client";
-
 import { deleteCashflow } from "@/actions/actions";
+import { getExpense, getIncome } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeleteItemButton } from "@/ui/Buttons";
 
-interface CashflowData {
-  id: string;
-  type: "INCOME" | "EXPENSE";
-  amount: number;
-  category: string;
-  date: Date | string;
-  rentalId: string | null;
-  notes: string | null;
-}
 
-interface RevenueTableProps {
-  income: CashflowData[];
-  expense: CashflowData[];
-}
-
-export default function RevenueTable({ income, expense }: RevenueTableProps) {
+export default async function RevenueTable() {
+  const [ incomeRes, expenseRes ] = await Promise.all([getIncome(), getExpense()]);
+  const income = incomeRes.data || [];
+  const expense = expenseRes.data || [];
   const incomeTotal = income.reduce((sum, item) => sum + item.amount, 0);
   const expenseTotal = expense.reduce((sum, item) => sum + item.amount, 0);
   const netIncome = incomeTotal - expenseTotal;

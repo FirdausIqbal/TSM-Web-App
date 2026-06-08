@@ -1,7 +1,7 @@
 "use client";
 
 import { editRental } from "@/actions/actions";
-import type { State } from "@/app/types/definitions";
+import type { State } from "@/types/definitions";
 import { calculateDays, formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
 import { useEffect } from "react";

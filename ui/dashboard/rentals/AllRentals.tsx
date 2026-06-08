@@ -1,12 +1,13 @@
 import { deleteRental } from "@/actions/actions";
-import { getAllRentals } from "@/lib/data";
+import { getFilteredRentals } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeleteItemButton, StatusRentalButton } from "@/ui/Buttons";
 import { Edit, PlusIcon } from "lucide-react";
 import Link from "next/link";
 
-export default async function AllRentals() {
-  const rentals = await getAllRentals();
+export default async function AllRentals({ page, pageSize }: { page: number, pageSize: number}) {
+  
+  const rentals = await getFilteredRentals(page, pageSize);
   return (
     <div className="bg-card rounded-2xl border border-border p-6 shadow-md hover:shadow-lg">
       <div className="flex items-center justify-between mb-4">

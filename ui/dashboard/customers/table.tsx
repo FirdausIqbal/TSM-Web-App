@@ -1,25 +1,14 @@
-"use client";
-
 import { deleteCustomer } from "@/actions/actions";
+import { getFilteredCustomer } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { DeleteItemButton } from "@/ui/Buttons";
 import { Edit2 } from "lucide-react";
 import Link from "next/link";
 
-interface Customer {
-  id: string;
-  name: string;
-  nik: string;
-  phone: string;
-  address: string | null;
-  createdAt: Date;
-}
 
-interface CustomersTableProps {
-  customers: Customer[];
-}
-
-export default function CustomersTable({ customers }: CustomersTableProps) {
+export default async function CustomersTable({page, pageSize}: {page: number, pageSize: number}) {
+   const result = await getFilteredCustomer(page, pageSize);
+  const customers = result.data || [];
   if (customers.length === 0) {
     return (
       <div className="flex items-center justify-center py-8">

@@ -1,15 +1,10 @@
-import { getExpense, getIncome } from "@/lib/data"
 import RevenueTable from "@/ui/dashboard/revenue/RevenueTable"
+import { RevenueTableSkeleton } from "@/ui/Skeletons";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default async function page() {
-  const incomeRes = await getIncome() ??  { data: [] };
-  const expenseRes = await getExpense() ?? { data: [] };
-  
-  const income = incomeRes.data || [];
-  const expense = expenseRes.data || [];
-
+export default function page() {
   return (
     <div className="space-y-8">
         <div>
@@ -24,7 +19,9 @@ export default async function page() {
               <PlusIcon size={20} /> Buat catatan baru
             </Link>
           </div>
-          <RevenueTable income={income} expense={expense} />
+          <Suspense fallback={<RevenueTableSkeleton />}>
+            <RevenueTable/>
+          </Suspense>
         </div>
     </div>
   )

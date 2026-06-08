@@ -15,12 +15,12 @@ export function SignOutButton() {
   return (
     <form action={logout}>
       <button
-        className="bg-card-foreground rounded-2xl p-2 cursor-pointer border border-border"
+        className="bg-card-foreground hover:bg-card-foreground/80 transition-colors duration-300 rounded-2xl p-2 cursor-pointer border border-border"
         type="submit"
       >
-        <div className="flex gap-2 text-popover">
+        <div className="flex gap-2 items-center text-popover">
           <LogOut size={20} />
-          SignOut
+          Log Out
         </div>
       </button>
     </form>
@@ -81,7 +81,7 @@ export function DeleteItemButton<T = string>({
       <button
         onClick={() => setIsModalOpen(true)}
         disabled={isPending}
-        className="p-2 z-50 bg-destructive hover:bg-destructive/50 transition-colors duration-300 rounded-2xl text-background cursor-pointer"
+        className="p-2 bg-destructive hover:bg-destructive/50 transition-colors duration-300 rounded-2xl text-background cursor-pointer"
       >
         {isPending ? (
           <Loader2 size={20} className="animate-spin" />
