@@ -423,7 +423,10 @@ export async function fetchMonthlyData() {
       .select({ total: sum(cashflow.amount).mapWith(Number) })
       .from(cashflow)
       .where(
-        and(gte(cashflow.date, startOfMonth), lte(cashflow.date, endOfMonth)),
+        and(
+          gte(cashflow.date, startOfMonth), lte(cashflow.date, endOfMonth),
+          eq(cashflow.type, "INCOME")
+        ),
       );
     const totalUnitPromise = db.select({ total: count() }).from(cars);
     const totalRentalPromise = db
