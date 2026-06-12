@@ -70,7 +70,9 @@ export async function addRental(formdata: FormData) {
       notes: "Tripelde Booked Unit",
     });
 
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/rentals");
+    revalidatePath("/dashboard/revenue");
     return {
       success: true,
       message: "Berhasil Mencatat data rental dan cashflow",
