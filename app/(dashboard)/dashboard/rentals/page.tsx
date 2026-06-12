@@ -5,8 +5,7 @@ import { RentalsTableSkeleton } from "@/ui/Skeletons";
 import { Suspense } from "react";
 
 export default async function page(props: { searchParams: Promise<{page: number, pageSize: number}>}) {
-  const params = await props.searchParams;
-  const totalItems = await getRentalCount(); // Kalau tambah fitur search ubah jadi berdasarkan query search
+  const [params, totalItems] = await Promise.all([props.searchParams, getRentalCount()]) // Kalau tambah fitur search ubah jadi berdasarkan query search 
   const page = Number(params?.page) || 1;
   const pageSize = Number(params?.pageSize) || 10;
   const totalPages = Math.ceil(totalItems / pageSize);

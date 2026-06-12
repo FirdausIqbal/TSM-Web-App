@@ -4,7 +4,6 @@ import RentalCalendar from "@/ui/RentCalendar";
 import { MonthlyStatsSkeleton, RentalsTableSkeleton } from "@/ui/Skeletons";
 import { Suspense } from "react";
 
-export const dynamic = 'force-dynamic';
 
 export default function page() {
   return (

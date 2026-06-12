@@ -9,8 +9,7 @@ import { PaginationControls } from "@/ui/dashboard/PaginationControls";
 export default async function page(props: {
   searchParams: Promise<{ page: string; pageSize: string }>;
 }) {
-  const searchParams = await props.searchParams;
-  const allItem = await fetchCustomerCount();
+  const [searchParams, allItem] = await Promise.all([ props.searchParams, fetchCustomerCount()])
   const page = Number(searchParams.page) || 1;
   const pageSize = Number(searchParams.pageSize) || 10;
   const totalPage = Math.ceil(allItem / pageSize);

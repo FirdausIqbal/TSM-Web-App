@@ -12,6 +12,7 @@ import {
   notExists,
   count,
   sum,
+  sql,
 } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -420,13 +421,17 @@ export async function fetchMonthlyData() {
       999,
     );
     const monthlyIncomePromise = db
-      .select({ total: sum(cashflow.amount).mapWith(Number) })
+      .select({
+        // 3. LANGSUNG HITUNG BERSIHNYA (Income - Expense)
+        netProfit: sql<number>`COALESCE(
+        SUM(CASE WHEN ${cashflow.type} = 'INCOME' THEN ${cashflow.amount} ELSE 0 END) - 
+        SUM(CASE WHEN ${cashflow.type} = 'EXPENSE' THEN ${cashflow.amount} ELSE 0 END), 
+        0
+      )`.mapWith(Number),
+      })
       .from(cashflow)
       .where(
-        and(
-          gte(cashflow.date, startOfMonth), lte(cashflow.date, endOfMonth),
-          eq(cashflow.type, "INCOME")
-        ),
+        and(gte(cashflow.date, startOfMonth), lte(cashflow.date, endOfMonth)),
       );
     const totalUnitPromise = db.select({ total: count() }).from(cars);
     const totalRentalPromise = db
@@ -447,7 +452,7 @@ export async function fetchMonthlyData() {
       totalCustomerPromise,
     ]);
 
-    const monthlyIncome = data[0][0].total ?? "0";
+    const monthlyIncome = data[0][0].netProfit ?? "0";
     const totalUnit = data[1][0].total ?? "0";
     const totalRental = data[2][0].total ?? "0";
     const totalCustomer = data[3][0].total ?? "0";

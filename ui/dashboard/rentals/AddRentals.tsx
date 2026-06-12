@@ -512,6 +512,7 @@ function InputField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="w-full border rounded-xl px-4 py-3"
+        required
       />
     </div>
   );
