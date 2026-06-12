@@ -190,6 +190,7 @@ export async function editRental(
     };
   }
 
+  revalidatePath("/dashboard");
   revalidatePath("/dashboard/rentals");
   revalidatePath("/dashboard/revenue");
   return {
@@ -301,14 +302,15 @@ export async function createCashflow(prevState: unknown, formData: FormData) {
       notes: (notes as string) || null,
       date: new Date(date as string),
     });
+    revalidatePath("/dashboard/revenue");
+    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error create cashflow : ", error);
     return {
       message: "Gagal mencatat data keuangan",
     };
   }
-  revalidatePath("/dashboard/revenue");
-  revalidatePath("/dashboard");
+  
   redirect("/dashboard/revenue");
 }
 
@@ -319,12 +321,13 @@ export async function deleteCashflow(id: string) {
   }
   try {
     await db.delete(cashflow).where(eq(cashflow.id, id));
+    revalidatePath("/dashboard/revenue");
+    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error delete cashflow : ", error);
     return { message: "Failed deleting cashflow" };
   }
-  revalidatePath("/dashboard/revenue");
-  revalidatePath("/dashboard");
+  
 }
 
 /**
@@ -355,6 +358,7 @@ export async function createCar(prevState: unknown, formData: FormData) {
     });
 
     revalidatePath("/dashboard/cars");
+    revalidatePath("/dashboard");
     return { success: true, message: "Success creating car" };
   } catch (error) {
     console.log("Error create car : ", error);
