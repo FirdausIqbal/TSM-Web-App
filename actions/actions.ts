@@ -91,13 +91,16 @@ export async function deleteRental(id: string) {
   }
   try {
     await db.delete(rentals).where(eq(rentals.id, id));
+
+    revalidatePath("/dashboard")
+    revalidatePath("/dashboard/rentals");
+    revalidatePath("/dashboard/revenue");
   } catch (error) {
     console.log("Something went wrong while deleting rental: ", error);
     return {
       message: "Terjadi keasalahan pada sistem",
     };
   }
-  revalidatePath("/dashboard/rentals");
 }
 
 export async function editRental(
@@ -186,6 +189,7 @@ export async function editRental(
   }
 
   revalidatePath("/dashboard/rentals");
+  revalidatePath("/dashboard/revenue");
   return {
     success: true,
     message: "Berhasil mengubah data rental",
@@ -225,6 +229,7 @@ export async function createCustomer(prevState: unknown, formData: FormData) {
   }
 
   revalidatePath("/dashboard/customers");
+  revalidatePath("/dashboard");
   redirect("/dashboard/customers");
 }
 
@@ -237,6 +242,7 @@ export async function deleteCustomer(id: string) {
   }
 
   revalidatePath("/dashboard/customers");
+  revalidatePath("/dashboard");
 }
 
 export async function editCustomer(
@@ -262,6 +268,7 @@ export async function editCustomer(
   }
 
   revalidatePath("/dashboard/customers");
+  revalidatePath("/dashboard");
   redirect("/dashboard/customers");
 }
 
@@ -299,6 +306,7 @@ export async function createCashflow(prevState: unknown, formData: FormData) {
     };
   }
   revalidatePath("/dashboard/revenue");
+  revalidatePath("/dashboard");
   redirect("/dashboard/revenue");
 }
 
@@ -314,6 +322,7 @@ export async function deleteCashflow(id: string) {
     return { message: "Failed deleting cashflow" };
   }
   revalidatePath("/dashboard/revenue");
+  revalidatePath("/dashboard");
 }
 
 /**
@@ -359,6 +368,7 @@ export async function deleteCar(id: string) {
   try {
     await db.delete(cars).where(eq(cars.id, id));
     revalidatePath("/dashboard/cars");
+    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error delete car : ", error);
     return { message: "Failed deleting car" };
