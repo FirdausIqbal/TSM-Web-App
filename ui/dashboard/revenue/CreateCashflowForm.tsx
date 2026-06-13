@@ -2,7 +2,7 @@
 
 import { Loader2, Banknote, Tag, Calendar, FileText } from "lucide-react";
 import { useActionState, useState } from "react";
-import { createCashflow } from "@/actions/actions";
+import { createCashflow } from "@/actions/cashflow";
 
 interface CreateCashflowFormState {
   message?: string;

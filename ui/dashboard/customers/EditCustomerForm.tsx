@@ -1,6 +1,6 @@
 "use client";
 
-import { editCustomer } from "@/actions/actions";
+import { editCustomer } from "@/actions/customer";
 import Link from "next/link";
 import { useActionState } from "react";
 

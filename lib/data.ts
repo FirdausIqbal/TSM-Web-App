@@ -1,5 +1,6 @@
-"use server";
-import type { DailyCalendarData, StatusValueType } from "@/types/definitions";
+"use server"
+
+import type { DailyCalendarData } from "@/types/definitions";
 import { db } from "@/db";
 import { customers, rentals, cars, cashflow } from "@/db/schema";
 import {
@@ -11,10 +12,8 @@ import {
   lte,
   notExists,
   count,
-  sum,
   sql,
 } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 
 /**
  * fetch all rentals func
@@ -189,19 +188,6 @@ export async function getAvailableCars(startDate: Date, endDate: Date) {
   } catch (error) {
     console.log(error);
     throw new Error("Error get available cars");
-  }
-}
-
-export async function changeRentalStatus(id: string, currentStatus: string) {
-  try {
-    await db
-      .update(rentals)
-      .set({ status: currentStatus as StatusValueType })
-      .where(eq(rentals.id, id));
-    revalidatePath("/dashboard/rentals");
-  } catch (error) {
-    console.log(error);
-    throw new Error("terjadi kesalahan saat mengubah status");
   }
 }
 

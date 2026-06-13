@@ -1,6 +1,6 @@
 'use client';
 
-import { createCustomer } from '@/actions/actions';
+import { createCustomer } from '@/actions/customer';
 import { useActionState } from 'react';
 
 interface FormState {

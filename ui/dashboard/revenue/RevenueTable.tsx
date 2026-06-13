@@ -1,4 +1,4 @@
-import { deleteCashflow } from "@/actions/actions";
+import { deleteCashflow } from "@/actions/cashflow";
 import { getExpense, getIncome } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeleteItemButton } from "@/ui/Buttons";

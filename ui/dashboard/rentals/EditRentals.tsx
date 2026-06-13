@@ -1,6 +1,6 @@
 "use client";
 
-import { editRental } from "@/actions/actions";
+import { editRental } from "@/actions/rental";
 import type { State } from "@/types/definitions";
 import { calculateDays, formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";

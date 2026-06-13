@@ -1,4 +1,4 @@
-import { deleteRental } from "@/actions/actions";
+import { deleteRental } from "@/actions/rental";
 import { getFilteredRentals } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeleteItemButton, StatusRentalButton } from "@/ui/Buttons";

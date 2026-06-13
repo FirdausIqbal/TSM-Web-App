@@ -5,7 +5,7 @@ import { Loader2, Loader2Icon, LogOut, Notebook, Trash } from "lucide-react";
 import { useState, useTransition, type ChangeEvent } from "react";
 import { ConfirmModal } from "./modals/ConfirmModal";
 import { formatStyleStatus } from "@/lib/utils";
-import { changeRentalStatus } from "@/lib/data";
+import { changeRentalStatus } from "@/actions/rental";
 
 /**
  * Button SignOut
