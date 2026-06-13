@@ -1,6 +1,6 @@
 "use client";
 
-import { addRental } from "@/actions/actions";
+import { addRental } from "@/actions/rental";
 import { getAllCustomers, getAvailableCars } from "@/lib/data";
 import { calculateDays, formatCurrency } from "@/lib/utils";
 import { redirect } from "next/navigation";
@@ -94,6 +94,7 @@ export default function RentalCreatePage() {
       alert("Tanggal selesai harus lebih besar");
       return;
     }
+
     const cars = await getAvailableCars(new Date(startDate), new Date(endDate));
     const customer = await getAllCustomers();
     setAvailableCars(cars.data);
@@ -121,6 +122,7 @@ export default function RentalCreatePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setIsLoading(true)
 
     if (!selectedCar) {
       alert("Pilih mobil terlebih dahulu");
@@ -147,6 +149,7 @@ export default function RentalCreatePage() {
     formData.append("totalPrice", totalPrice.toString());
 
     const res = await addRental(formData)
+    setIsLoading(false);
     if(res?.success){
       redirect("/dashboard/rentals")
     }else{
@@ -361,8 +364,9 @@ export default function RentalCreatePage() {
                 <button
                   type="submit"
                   className="bg-black text-white px-5 py-3 rounded-xl hover:opacity-90"
+                  disabled={isLoading}
                 >
-                  Simpan Rental
+                  {isLoading ? "Loading..." : "Simpan Rental"}
                 </button>
               </form>
             )}

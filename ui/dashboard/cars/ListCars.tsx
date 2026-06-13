@@ -4,7 +4,7 @@ import { Edit2, PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { PaginationControls } from "@/ui/dashboard/PaginationControls";
 import { DeleteItemButton } from "@/ui/Buttons";
-import { deleteCar } from "@/actions/actions";
+import { deleteCar } from "@/actions/car";
 import Image from "next/image";
 
 interface ListCarsProps {

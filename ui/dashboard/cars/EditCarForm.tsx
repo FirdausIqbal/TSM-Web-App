@@ -1,9 +1,9 @@
 'use client';
 
-import { editCar } from '@/actions/actions';
+import { editCar } from '@/actions/car';
 import { useActionState } from 'react';
 import Link from 'next/link';
-import { redirect, useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 
 interface CarData {
   id: string;

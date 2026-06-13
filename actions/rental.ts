@@ -1,0 +1,212 @@
+"use server";
+
+import type { State, StatusValueType } from "@/types/definitions";
+import { auth } from "@/auth";
+import { db } from "@/db";
+import { cashflow, customers, rentals } from "@/db/schema";
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+
+export async function addRental(formdata: FormData) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const {
+    customerName,
+    customerId,
+    nik,
+    phone,
+    address,
+    carId,
+    startDate,
+    endDate,
+    totalPrice,
+  } = Object.fromEntries(formdata);
+
+  try {
+    let finalCustomerId = customerId as string;
+
+    const exsistingCustomer = await db
+      .select({ id: customers.id })
+      .from(customers)
+      .where(eq(customers.nik, nik as string))
+      .limit(1);
+
+    if (exsistingCustomer.length < 1) {
+      const newCustomer = await db
+        .insert(customers)
+        .values({
+          name: customerName as string,
+          nik: nik as string,
+          phone: phone as string,
+          address: address as string,
+        })
+        .returning({ insertedId: customers.id });
+
+      finalCustomerId = newCustomer[0].insertedId;
+    } else {
+      finalCustomerId = exsistingCustomer[0].id;
+    }
+
+    const newRental = await db
+      .insert(rentals)
+      .values({
+        carId: carId as string,
+        customerId: finalCustomerId,
+        startDate: new Date(startDate as string),
+        endDate: new Date(endDate as string),
+        totalPrice: Number(totalPrice),
+      })
+      .returning({ id: rentals.id });
+
+    await db.insert(cashflow).values({
+      type: "INCOME",
+      amount: Number(totalPrice),
+      category: "Sewa Unit Mobil TSM",
+      rentalId: newRental[0].id,
+      notes: "Tripelde Booked Unit",
+    });
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/rentals");
+    revalidatePath("/dashboard/revenue");
+    return {
+      success: true,
+      message: "Berhasil Mencatat data rental dan cashflow",
+    };
+  } catch (error) {
+    console.log("Error add rental : ", error);
+    return {
+      success: false,
+      message: "Something went wrong while adding rental",
+    };
+  }
+}
+
+export async function deleteRental(id: string) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+  try {
+    await db.delete(rentals).where(eq(rentals.id, id));
+
+    revalidatePath("/dashboard")
+    revalidatePath("/dashboard/rentals");
+    revalidatePath("/dashboard/revenue");
+  } catch (error) {
+    console.log("Something went wrong while deleting rental: ", error);
+    return {
+      message: "Terjadi keasalahan pada sistem",
+    };
+  }
+}
+
+export async function editRental(
+  rentalId: string,
+  prevState: State,
+  formData: FormData,
+) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { carId, startDate, endDate, totalPrice } =
+    Object.fromEntries(formData);
+
+  try {
+    // 1. FETCH EXISTING RENTAL DATA (minimal query - no customer join)
+    // Ambil hanya data rental untuk dibandingkan
+    const existingRental = await db
+      .select({
+        id: rentals.id,
+        carId: rentals.carId,
+        startDate: rentals.startDate,
+        endDate: rentals.endDate,
+        totalPrice: rentals.totalPrice,
+      })
+      .from(rentals)
+      .where(eq(rentals.id, rentalId))
+      .limit(1);
+
+    if (existingRental.length === 0) {
+      return {
+        success: false,
+        message: "Rental tidak ditemukan",
+      };
+    }
+
+    const oldData = existingRental[0];
+    const newStartDate = new Date(startDate as string);
+    const newEndDate = new Date(endDate as string);
+    const newTotalPrice = Number(totalPrice);
+
+    // 2. BUILD DYNAMIC UPDATE OBJECT (Hanya update field yang berubah)
+    const rentalUpdates: Record<string, unknown> = {};
+
+    if (oldData.carId !== carId) rentalUpdates.carId = carId as string;
+    if (oldData.startDate.getTime() !== newStartDate.getTime())
+      rentalUpdates.startDate = newStartDate;
+    if (oldData.endDate.getTime() !== newEndDate.getTime())
+      rentalUpdates.endDate = newEndDate;
+    if (oldData.totalPrice !== newTotalPrice)
+      rentalUpdates.totalPrice = newTotalPrice;
+
+    // 3. SKIP UPDATE JIKA TIDAK ADA PERUBAHAN
+    if (Object.keys(rentalUpdates).length === 0) {
+      return {
+        success: true,
+        message: "Tidak ada perubahan data",
+      };
+    }
+
+    // 4. UPDATE RENTAL DENGAN FIELDS YANG BERUBAH
+    await db.update(rentals).set(rentalUpdates).where(eq(rentals.id, rentalId));
+
+    // 5. UPDATE CASHFLOW (hanya jika totalPrice berubah)
+    if (oldData.totalPrice !== newTotalPrice) {
+      const existingCashflow = await db
+        .select({ id: cashflow.id })
+        .from(cashflow)
+        .where(eq(cashflow.rentalId, rentalId))
+        .limit(1);
+
+      if (existingCashflow.length > 0) {
+        await db
+          .update(cashflow)
+          .set({ amount: newTotalPrice })
+          .where(eq(cashflow.id, existingCashflow[0].id));
+      }
+    }
+  } catch (error) {
+    console.log("Error edit rental: ", error);
+    return {
+      success: false,
+      message: "Something went wrong while editing rental",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/rentals");
+  revalidatePath("/dashboard/revenue");
+  return {
+    success: true,
+    message: "Berhasil mengubah data rental",
+  };
+}
+
+export async function changeRentalStatus(id: string, currentStatus: string) {
+  try {
+    await db
+      .update(rentals)
+      .set({ status: currentStatus as StatusValueType })
+      .where(eq(rentals.id, id));
+    revalidatePath("/dashboard/rentals");
+  } catch (error) {
+    console.log(error);
+    throw new Error("terjadi kesalahan saat mengubah status");
+  }
+}

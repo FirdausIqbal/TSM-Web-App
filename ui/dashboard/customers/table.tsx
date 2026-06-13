@@ -1,4 +1,4 @@
-import { deleteCustomer } from "@/actions/actions";
+import { deleteCustomer } from "@/actions/customer";
 import { getFilteredCustomer } from "@/lib/data";
 import { formatDate } from "@/lib/utils";
 import { DeleteItemButton } from "@/ui/Buttons";
