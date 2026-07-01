@@ -8,10 +8,11 @@ import { SignOutButton } from "@/ui/Buttons";
 
 const navItems = [
   { label: "Dashboard", icon: Home, href: "/dashboard" },
+  { label: "Cars", icon: Car, href: "/dashboard/cars" },
   { label: "Revenue", icon: BarChart3, href: "/dashboard/revenue" },
+  { label: "Cetak Revenue", icon: ClipboardClock, href: "/dashboard/cetak-revenue" },
   { label: "Customers", icon: Users, href: "/dashboard/customers" },
   { label: "Rentals", icon: ClipboardClock, href: "/dashboard/rentals" },
-  { label: "Cars", icon: Car, href: "/dashboard/cars" }
 ];
 
 export default function DashboardSidebar() {

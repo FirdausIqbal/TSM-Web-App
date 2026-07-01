@@ -35,7 +35,6 @@ export async function createCustomer(prevState: unknown, formData: FormData) {
   }
 
   revalidatePath("/dashboard/customers");
-  revalidatePath("/dashboard");
   redirect("/dashboard/customers");
 }
 
@@ -48,7 +47,6 @@ export async function deleteCustomer(id: string) {
   }
 
   revalidatePath("/dashboard/customers");
-  revalidatePath("/dashboard");
 }
 
 export async function editCustomer(
@@ -74,6 +72,5 @@ export async function editCustomer(
   }
 
   revalidatePath("/dashboard/customers");
-  revalidatePath("/dashboard");
   redirect("/dashboard/customers");
 }

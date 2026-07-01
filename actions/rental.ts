@@ -69,7 +69,6 @@ export async function addRental(formdata: FormData) {
       notes: "Tripelde Booked Unit",
     });
 
-    revalidatePath("/dashboard");
     revalidatePath("/dashboard/rentals");
     revalidatePath("/dashboard/revenue");
     return {
@@ -93,7 +92,6 @@ export async function deleteRental(id: string) {
   try {
     await db.delete(rentals).where(eq(rentals.id, id));
 
-    revalidatePath("/dashboard")
     revalidatePath("/dashboard/rentals");
     revalidatePath("/dashboard/revenue");
   } catch (error) {
@@ -189,7 +187,6 @@ export async function editRental(
     };
   }
 
-  revalidatePath("/dashboard");
   revalidatePath("/dashboard/rentals");
   revalidatePath("/dashboard/revenue");
   return {

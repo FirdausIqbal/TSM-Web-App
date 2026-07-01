@@ -31,7 +31,6 @@ export async function createCashflow(prevState: unknown, formData: FormData) {
       date: new Date(date as string),
     });
     revalidatePath("/dashboard/revenue");
-    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error create cashflow : ", error);
     return {
@@ -50,7 +49,6 @@ export async function deleteCashflow(id: string) {
   try {
     await db.delete(cashflow).where(eq(cashflow.id, id));
     revalidatePath("/dashboard/revenue");
-    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error delete cashflow : ", error);
     return { message: "Failed deleting cashflow" };
