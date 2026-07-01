@@ -30,7 +30,6 @@ export async function createCar(prevState: unknown, formData: FormData) {
     });
 
     revalidatePath("/dashboard/cars");
-    revalidatePath("/dashboard");
     return { success: true, message: "Success creating car" };
   } catch (error) {
     console.log("Error create car : ", error);
@@ -46,7 +45,6 @@ export async function deleteCar(id: string) {
   try {
     await db.delete(cars).where(eq(cars.id, id));
     revalidatePath("/dashboard/cars");
-    revalidatePath("/dashboard");
   } catch (error) {
     console.log("Error delete car : ", error);
     return { message: "Failed deleting car" };

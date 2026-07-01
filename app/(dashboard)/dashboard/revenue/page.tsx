@@ -1,4 +1,3 @@
-import RevenueExportButton from "@/ui/dashboard/revenue/export-revenue-btn";
 import RevenueTable from "@/ui/dashboard/revenue/RevenueTable"
 import { RevenueTableSkeleton } from "@/ui/Skeletons";
 import { PlusIcon } from "lucide-react";
@@ -12,8 +11,6 @@ export default function page() {
           <h1 className="font-bold text-2xl mb-2">Revenue</h1>
           <p className="text-muted-foreground text-sm">kelola catatan keuangan</p>
         </div>
-
-        <RevenueExportButton />
 
         <div className="bg-card p-4 md:p-6 rounded-2xl border border-border">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">

@@ -13,16 +13,22 @@ export async function GET(request: NextRequest){
     }
     try {
         const now = new Date();
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(
-        now.getFullYear(),
-        now.getMonth() + 1,
-        0,
-        23,
-        59,
-        59,
-        999,
-        );
+        // Allow overriding month via query param `month=YYYY-MM`
+        const monthParam = request.nextUrl.searchParams.get('month');
+        let startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        let endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        if (monthParam) {
+          const parts = monthParam.split('-');
+          if (parts.length === 2) {
+            const y = Number(parts[0]);
+            const m = Number(parts[1]);
+            if (!Number.isNaN(y) && !Number.isNaN(m) && m >= 1 && m <= 12) {
+              startOfMonth = new Date(y, m - 1, 1);
+              endOfMonth = new Date(y, m, 0, 23, 59, 59, 999);
+            }
+          }
+        }
 
         const dataCashflow = await db
         .select({
@@ -179,10 +185,14 @@ export async function GET(request: NextRequest){
     // =========================================================================
     const buffer = await workbook.xlsx.writeBuffer();
 
+    const fileMonthLabel = monthParam
+      ? new Date(startOfMonth.getFullYear(), startOfMonth.getMonth(), 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' })
+      : now.toLocaleString('id-Id', { month: 'long', year: 'numeric' });
+
     return new NextResponse(buffer, {
       status: 200,
       headers: {
-        'Content-Disposition': `attachment; filename="Laporan_MultiSheet_Cashflow_${now.toLocaleString('id-Id', { month: "long", year: "numeric"})}.xlsx"`,
+        'Content-Disposition': `attachment; filename="Laporan_MultiSheet_Cashflow_${fileMonthLabel}.xlsx"`,
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       },
     });
