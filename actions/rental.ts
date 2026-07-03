@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { cashflow, customers, rentals } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { createInvoice } from "@/actions/invoice";
 
 export async function addRental(formdata: FormData) {
   const session = await auth();
@@ -69,11 +70,13 @@ export async function addRental(formdata: FormData) {
       notes: "Tripelde Booked Unit",
     });
 
+    await createInvoice(newRental[0].id, new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), Number(totalPrice));
+
     revalidatePath("/dashboard/rentals");
     revalidatePath("/dashboard/revenue");
     return {
       success: true,
-      message: "Berhasil Mencatat data rental dan cashflow",
+      message: "Berhasil Mencatat data rental, cashflow, dan membuat invoice",
     };
   } catch (error) {
     console.log("Error add rental : ", error);

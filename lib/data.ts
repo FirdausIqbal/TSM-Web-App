@@ -1,8 +1,8 @@
 "use server"
 
-import type { DailyCalendarData } from "@/types/definitions";
+import type { DailyCalendarData, InvoiceDetailWithRelations } from "@/types/definitions";
 import { db } from "@/db";
-import { customers, rentals, cars, cashflow } from "@/db/schema";
+import { customers, rentals, cars, cashflow, invoices, payments } from "@/db/schema";
 import {
   and,
   or,
@@ -252,6 +252,81 @@ export async function getRentalFormData(id: string) {
   } catch (error) {
     console.log("Error to fetch rental data : ", error);
     throw new Error("Failed to fetch rental data");
+  }
+}
+
+export async function getInvoiceList(page: number, pageSize: number) {
+  try {
+    const validPage = Math.max(1, page);
+    const validPageSize = Math.max(1, Math.min(pageSize, 100));
+    const offset = (validPage - 1) * validPageSize;
+
+    const invoicesRes = await db
+      .select({
+        id: invoices.id,
+        invoiceNumber: invoices.invoiceNumber,
+        orderId: invoices.orderId,
+        totalAmount: invoices.totalAmount,
+        status: invoices.status,
+        dueDate: invoices.dueDate,
+        createdAt: invoices.createdAt,
+      })
+      .from(invoices)
+      .orderBy(desc(invoices.createdAt))
+      .limit(validPageSize)
+      .offset(offset);
+
+    return { success: true, data: invoicesRes };
+  } catch (error) {
+    console.error("Failed to fetch invoice list:", error);
+    return { success: false, error: "Failed to fetch invoice list" };
+  }
+}
+
+export async function getInvoiceDetail(id: string) {
+  try {
+    let invoiceRows = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+    if(invoiceRows.length === 0) {
+      invoiceRows = await db.select().from(invoices).where(eq(invoices.orderId, id)).limit(1);
+    }
+
+    const invoice = invoiceRows[0];
+    const paymentRecords = await db
+      .select()
+      .from(payments)
+      .where(eq(payments.invoiceId, id))
+      .orderBy(desc(payments.paymentDate));
+
+    const rentalRows = await db
+      .select({
+        id: rentals.id,
+        customerName: customers.name,
+        customerPhone: customers.phone,
+        customerNik: customers.nik,
+        carName: cars.name,
+        plateNumber: cars.plateNumber,
+        pricePerDay: cars.pricePerDay,
+        startDate: rentals.startDate,
+        endDate: rentals.endDate,
+        totalPrice: rentals.totalPrice,
+      })
+      .from(rentals)
+      .innerJoin(customers, eq(rentals.customerId, customers.id))
+      .innerJoin(cars, eq(rentals.carId, cars.id))
+      .where(eq(rentals.id, invoice.orderId))
+      .limit(1);
+
+    return {
+      success: true,
+      data: {
+        invoice,
+        payments: paymentRecords,
+        rental: rentalRows[0] ?? null,
+      },
+    } as { success: true; data: InvoiceDetailWithRelations };
+  } catch (error) {
+    console.error("Error to fetch invoice detail :", error);
+    throw new Error("Cannot find invoice detail.")
   }
 }
 
