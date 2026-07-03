@@ -2,6 +2,8 @@ import Link from "next/link";
 import { getInvoiceList } from "@/lib/data";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function InvoiceListPage() {
   const invoiceResponse = await getInvoiceList(1, 50);
   const invoices = invoiceResponse.data ?? [];

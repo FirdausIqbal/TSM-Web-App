@@ -285,7 +285,10 @@ export async function getInvoiceList(page: number, pageSize: number) {
 
 export async function getInvoiceDetail(id: string) {
   try {
-    const invoiceRows = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+    let invoiceRows = await db.select().from(invoices).where(eq(invoices.id, id)).limit(1);
+    if(invoiceRows.length === 0) {
+      invoiceRows = await db.select().from(invoices).where(eq(invoices.orderId, id)).limit(1);
+    }
 
     const invoice = invoiceRows[0];
     const paymentRecords = await db
