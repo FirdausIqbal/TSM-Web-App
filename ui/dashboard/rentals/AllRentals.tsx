@@ -39,6 +39,12 @@ export default async function AllRentals({ page, pageSize }: { page: number, pag
               <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
                 Status
               </th>
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
+                Aksi
+              </th>
+              <th className="text-left py-3 px-3 font-semibold text-muted-foreground whitespace-nowrap">
+                Invoice
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -78,6 +84,13 @@ export default async function AllRentals({ page, pageSize }: { page: number, pag
                       id={rental.id}
                       onDelete={deleteRental}
                     />
+                  </td>
+                  <td className="p-3">
+                    <Link href={`/dashboard/invoice/${rental.id}`}>
+                      <div className="bg-emerald-500 rounded-4xl p-2 text-white flex items-center justify-center hover:bg-emerald-600 transition">
+                        Invoice
+                      </div>
+                    </Link>
                   </td>
                   <td className="p-3">
                     <Link href={`/dashboard/rentals/edit/${rental.id}`}>

@@ -58,6 +58,30 @@ export const cashflow = pgTable("cashflow", {
   notes: text("notes"),
 });
 
+export const invoiceStatusEnum = pgEnum("invoice_status", ["UNPAID", "PARTIAL", "PAID", "CANCELLED"]);
+export const paymentMethodEnum = pgEnum("payment_method", ["TRANSFER", "CASH", "QRIS"]);
+export const paymentStatusEnum = pgEnum("payment_status", ["PENDING", "VERIFIED", "REJECTED"]);
+
+export const invoices = pgTable("invoices", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: text("order_id").notNull(),
+  invoiceNumber: text("invoice_number").notNull().unique(),
+  totalAmount: integer("total_amount").notNull(),
+  status: invoiceStatusEnum("status").default("UNPAID").notNull(),
+  dueDate: timestamp("due_date").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const payments = pgTable("payments", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  invoiceId: uuid("invoice_id").references(() => invoices.id).notNull(),
+  paymentMethod: paymentMethodEnum("payment_method").notNull(),
+  amountPaid: integer("amount_paid").notNull(),
+  paymentDate: timestamp("payment_date").defaultNow().notNull(),
+  proofOfPayment: text("proof_of_payment"),
+  status: paymentStatusEnum("status").default("PENDING").notNull(),
+});
+
 // Tabel User For the App
 export const app_user = pgTable("app_user", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -85,4 +109,12 @@ export const rentalsRelations = relations(rentals, ({ one, many }) => ({
 
 export const cashflowRelations = relations(cashflow, ({ one }) => ({
   rental: one(rentals, { fields: [cashflow.rentalId], references: [rentals.id] }),
+}));
+
+export const invoicesRelations = relations(invoices, ({ many }) => ({
+  payments: many(payments),
+}));
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  invoice: one(invoices, { fields: [payments.invoiceId], references: [invoices.id] }),
 }));
